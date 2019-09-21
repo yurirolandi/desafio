@@ -1,13 +1,23 @@
 <template>
    <div class="content-formulario">
     <div class="formulario">
-      <h2 class="titulo">Create Your App</h2>     
-      <div class="container">                      
+
+      <h2 class="titulo">Create Your App</h2>   
+
+      <div class="container">   
           <form @submit.prevent="enviar()"  method="post">
           <div class="formulario__input">
             <label class="titulo">APP NAME</label>
+
+
             <input type="text" placeholder="Enter App Display Name" id="name-input" 
+            name="titulo"         
             v-model="form.titulo">
+
+            <p class="erro">
+                {{ errors }}
+            </p>
+
           </div>
 
         <div class="formulario__input">
@@ -19,7 +29,7 @@
                 @drop="onDrop"
                 :class="{dragging : isDragging }">    
 
-                 <div >
+                <div>
                     <input type="text" class="file" 
                     @change="onInputChange"
                     placeholder="Drag an image here to upload">
@@ -31,6 +41,9 @@
                   </label>                                     
               </div>   
             </div>   
+           <p class="erro">
+                {{ errors }}
+            </p>
          </div>
 
          <div class="formulario__input">
@@ -51,6 +64,9 @@
                 </chrome>  
                   </div>
               </transition> 
+             <p class="erro">
+                {{ errors }}
+            </p>
         </div>
 
         <div class="formulario__input">
@@ -63,7 +79,25 @@
                 <option>Category B</option>
                 <option>Category C</option>
               </select>
-        </div>       
+              
+              <p class="erro">
+                {{ errors }}
+            </p>
+        </div>    
+
+       
+          <transition name="fade" v-if="sucesso">          
+            <div class="modal">               
+                <div class="modal-sucesso">
+                   <a @click="sucesso = !sucesso">X</a>
+                <h2 class="titulo-sucesso">
+                  Formulario enviado com sucesso !!!
+                </h2>
+              </div>    
+            </div>
+          </transition>        
+     
+         
       </form>   
       
         <div class="box__linha"></div>     
@@ -99,7 +133,6 @@
 
 <script>
 import { Chrome } from "vue-color";
-
 export default {
   name: "formulario",
   components: {
@@ -107,14 +140,19 @@ export default {
   },
   data() {
     return {
+      sucesso: false,
+      form: {
+       titulo: '',
+        selected: 'App category',
+      },
       show: false,
       isDragging: false,
       dragCount: 0,
       files: [],
       images: [],
-
+      errors: '',
       colors: {
-        hex: "#000",
+        hex: "",
         hsl: {
           h: 150,
           s: 0.5,
@@ -137,15 +175,33 @@ export default {
       }
     };
   },
-  computed: {
-    form() {
-      return this.$store.state.form;
+  methods: {  
+     enviar() {   
+        this.errors = [];
+
+        if( !this.form.titulo 
+            || !this.form.selected 
+            || !this.images 
+            || !this.colors){
+            this.errors.push('Campo Obrigatorio!')
+        }      
+    
+       if(this.form.titulo 
+            && this.form.selected 
+            && this.images 
+            && this.colors){
+          this.$http.post("form.json", this.form)
+        .then(resp => {
+          this.form.titulo = "";
+          this.form.selected = "";
+          this.images = "";
+          this.colors = "";
+          this.errors.push('Campo preenchido! ;)');
+          this.sucesso = true
+        });
+
+      }      
     },
-    enviar() {
-      return this.$store.state.enviar;
-    }
-  },
-  methods: {
     OnDragEnter(e) {
       e.preventDefault();
       this.dragCount++;
@@ -157,10 +213,10 @@ export default {
 
       if (this.dragCount < 0) this.isDragging = false;
     },
-    onInputChange(e) {
-      const files = e.target.files;
-
-      Array.from(files).forEach(file => this.addImage(file));
+    onInputChange(e) {      
+      const files = e.target.files;       
+          Array.from(files).forEach(file => this.addImage(file));     
+      
     },
     onDrop(e) {
       e.preventDefault();

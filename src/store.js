@@ -6,7 +6,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {     
     form: {
-      titulo: 'App',
+      titulo: '',
       selected: 'App category',
     },
     enviar() {   
@@ -25,21 +25,11 @@ export default new Vuex.Store({
       // eslint-disable-next-line
       console.log(this.images);
       // // eslint-disable-next-line
-      alert('formulario enviado')    
+      // alert('formulario enviado');  
+     
       
     },
-    onReset() {
-      this.form.titulo = "";
-      this.form.selected = "";   
-      this.images = "";
-      this.colors = "";
-      this.$nextTick(() => {
-        this.modal = false;
-      });
-    },
-    onChange (val) {
-      this.colors = val
-    },
+
     
   },
   mutations: {},
