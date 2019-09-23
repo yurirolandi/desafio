@@ -142,7 +142,7 @@ export default {
     return {
       sucesso: false,
       form: {
-       titulo: '',
+       titulo: 'App',
         selected: 'App category',
       },
       show: false,
